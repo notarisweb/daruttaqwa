@@ -1,4 +1,3 @@
-// components/Headline.tsx
 import { getNewsPosts } from "@/lib/sanity.query";
 import Link from "next/link";
 
@@ -31,7 +30,7 @@ export default async function Headline() {
           style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
         />
         
-        {/* Overlay Gradient: Menggunakan Biru Tua Khas Darut Taqwa */}
+        {/* Overlay Gradient: Biru Tua Khas Darut Taqwa */}
         <div style={{ 
           position: 'absolute', 
           bottom: 0, 
@@ -42,7 +41,7 @@ export default async function Headline() {
           color: '#fff'
         }}>
           
-          {/* Label Kategori / Tag */}
+          {/* Label Kategori */}
           <span style={{
             background: '#1a9c69',
             color: '#fff',
@@ -58,7 +57,7 @@ export default async function Headline() {
           </span>
 
           {/* 2. JUDUL UTAMA */}
-          <Link href={`/artikel/${mainNews.slug}`} style={{ textDecoration: 'none', color: '#fff' }}>
+          <Link href={`/${mainNews.category?.toLowerCase() || 'artikel'}/${mainNews.slug}`} style={{ textDecoration: 'none', color: '#fff' }}>
             <h2 style={{ 
               fontSize: '36px', 
               fontWeight: '900', 
@@ -87,36 +86,40 @@ export default async function Headline() {
               gridTemplateColumns: '1fr 1fr', 
               gap: '40px' 
             }}>
-              {relatedNews.map((related: any) => (
-                <Link key={related._id} href={`/artikel/${related.slug}`} style={{ textDecoration: 'none', color: '#fff' }}>
-                  <div style={{ cursor: 'pointer', group: 'true' }}>
-                    <span style={{ 
-                      color: '#f9c80e', 
-                      fontSize: '11px', 
-                      fontWeight: '800', 
-                      display: 'block', 
-                      marginBottom: '6px', 
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px'
-                    }}>
-                      Kabar Pesantren
-                    </span>
-                    <p style={{ 
-                      fontSize: '15px', 
-                      margin: 0, 
-                      fontWeight: '700', 
-                      lineHeight: '1.4', 
-                      display: '-webkit-box', 
-                      WebkitLineClamp: 2, 
-                      WebkitBoxOrient: 'vertical', 
-                      overflow: 'hidden',
-                      transition: 'color 0.3s'
-                    }}>
-                      {related.title}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+              {relatedNews.map((related: any) => {
+                const categoryPath = related.category?.toLowerCase() || "artikel";
+                return (
+                  <Link key={related._id} href={`/${categoryPath}/${related.slug}`} style={{ textDecoration: 'none', color: '#fff' }}>
+                    {/* FIX: Pindahkan 'group' ke className agar tidak Error Build */}
+                    <div className="group" style={{ cursor: 'pointer' }}>
+                      <span style={{ 
+                        color: '#f9c80e', 
+                        fontSize: '11px', 
+                        fontWeight: '800', 
+                        display: 'block', 
+                        marginBottom: '6px', 
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px'
+                      }}>
+                        {related.category || "Kabar Pesantren"}
+                      </span>
+                      <p style={{ 
+                        fontSize: '15px', 
+                        margin: 0, 
+                        fontWeight: '700', 
+                        lineHeight: '1.4', 
+                        display: '-webkit-box', 
+                        WebkitLineClamp: 2, 
+                        WebkitBoxOrient: 'vertical', 
+                        overflow: 'hidden',
+                        transition: 'color 0.3s'
+                      }} className="group-hover:text-[#f9c80e]">
+                        {related.title}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>

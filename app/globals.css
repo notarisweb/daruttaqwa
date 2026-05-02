@@ -1,217 +1,208 @@
 /* ================= CSS VARIABLES ================= */
 :root {
-  --abah-blue: #004a8e;
-  --abah-dark: #003666;
-  --abah-green: #2ca44f;
-  --abah-gold: #f4c300;
-  --abah-red: #ce1111;
-  --bg-gray: #f4f4f4;
+  /* Identitas Utama Darut Taqwa */
+  --dt-blue: #1e2f65;         /* Biru Tua Logo */
+  --dt-blue-dark: #15224a;
+  --dt-green: #1a9c69;        /* Hijau Logo */
+  --dt-green-dark: #147a52;
+  --dt-gold: #f9c80e;         /* Emas Logo */
+  --dt-gold-dark: #d4ab0b;
+  
+  /* Status & Netral */
+  --dt-red: #ef4444;          /* Merah untuk indikator/tombol */
+  --bg-gray: #f4f7f6;
   --text-dark: #222;
+  --text-muted: #666;
+
+  /* Font Fallback dari layout.tsx */
+  --font-main: var(--font-inter), -apple-system, sans-serif;
+  --font-arab: var(--font-amiri), serif;
 }
 
 /* ================= RESET & BASE ================= */
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box !important;
+  box-sizing: border-box !important; /* Kunci lebar agar tidak meluber */
 }
 
-body {
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: var(--bg-gray);
-  color: var(--text-dark);
-  line-height: 1.6;
-  overflow-x: hidden;
+html, body {
+  overflow-x: hidden; /* Anti scroll horizontal */
   width: 100%;
+  font-family: var(--font-main);
+  background-color: var(--bg-gray);
+  color: var(--text-dark);
+  scroll-behavior: smooth;
 }
 
 a { 
   text-decoration: none !important; 
-  color: inherit !important; 
-  transition: 0.3s;
+  color: inherit;
+  transition: 0.3s ease;
 }
 
 ul { list-style: none; }
 
-/* ================= CONTAINER ================= */
+/* ================= LAYOUT UTILITIES ================= */
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-}
-
-/* ================= TOPBAR STYLING - POSISI BARU ================= */
-.top-bar {
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  padding: 8px 0;
-}
-
-.flex-row-center {
-  display: flex !important;
-  align-items: center;
-  justify-content: space-between; /* Menjaga jarak antar 3 grup */
-}
-
-/* KIRI: Menu */
-.top-left-menu {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  flex: 1; /* Memberi ruang agar seimbang */
-}
-
-/* TENGAH: Search */
-.top-center-search {
-  display: flex;
-  justify-content: center;
-  flex: 2; /* Search box lebih lebar di tengah */
-}
-
-.search-pill-container {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 30px;
-  padding: 2px 2px 2px 15px;
+  max-width: 1200px !important; /* Standar Lebar Portal Berita */
+  margin: 0 auto !important;
+  padding: 0 20px;
   width: 100%;
-  max-width: 350px; /* Batas lebar search tengah */
 }
 
-/* KANAN: Tombol */
-.top-right-group {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  flex: 1; /* Memberi ruang agar seimbang */
+.home-wrapper {
+  width: 100%;
+  padding-bottom: 60px;
 }
 
-/* Komponen Visual Tambahan */
-.menu-circle-icon {
-  background: var(--abah-blue);
-  color: #fff;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.menu-label { font-weight: 800; color: #444; font-size: 14px; }
-
-.btn-blue-pill {
-  background: var(--abah-blue);
-  color: #fff !important;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 12px;
-  border: none;
-}
-
-.btn-outline-pill {
-  color: var(--abah-blue) !important;
-  border: 1.5px solid var(--abah-blue);
-  padding: 5px 16px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 12px;
-}
-
-.search-pill-input { border: none; outline: none; width: 100%; font-size: 13px; }
-
-.search-pill-button {
-  background: var(--abah-blue);
-  border: none;
-  width: 34px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ================= LOGO SECTION ================= */
-.logo-flex-wrapper {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 15px;
-}
-.logo-rounded { border-radius: 50%; }
-
-/* ================= LOGO SECTION ================= */
-.logo-section { padding: 25px 0; background: #fff; }
-
-.logo-flex-wrapper { 
-  display: flex !important; 
-  flex-direction: row !important; /* WAJIB: Kunci sejajar horisontal */
-  align-items: center !important; 
-  justify-content: flex-start !important; 
-  gap: 20px; 
-  width: fit-content;
-}
-
-.logo-rounded { border-radius: 50%; flex-shrink: 0; }
-
-.logo-text-box {
-  display: flex !important;
-  flex-direction: column !important;
-  text-align: left;
-}
-
-.main-logo-title { 
-  font-size: 34px; 
-  font-weight: 900; 
-  color: var(--abah-blue); 
-  margin: 0; 
-  line-height: 1; 
-  font-style: italic;
-  letter-spacing: -1px;
-}
-
-.main-logo-title .green { color: var(--abah-green); }
-.main-logo-title .gray { color: #ccc; font-weight: 300; }
-
-.tagline {
-  font-size: 14px;
-  color: #666;
-  margin: 4px 0 0 0;
-  font-weight: 500;
-  line-height: 1;
-}
-
-/* ================= NAVBAR & LAYOUT ================= */
-.main-nav { 
-  background: var(--abah-blue); 
-  border-bottom: 3px solid var(--abah-gold); 
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.nav-menu-list { display: flex !important; overflow-x: auto; scrollbar-width: none; }
-.nav-menu-list::-webkit-scrollbar { display: none; }
-
-.nav-anchor { 
-  display: flex; 
-  align-items: center; 
-  height: 48px; 
-  padding: 0 20px; 
-  color: #fff !important; 
-  font-weight: 700; 
-  font-size: 13px; 
-  white-space: nowrap; 
-  text-transform: uppercase;
-}
-.nav-anchor:hover { background: var(--abah-gold) !important; color: #004a8e !important; }
-
-.content-grid {
+/* Kunci Grid Layout agar Sidebar Tetap di Kanan */
+.main-grid, .bottom-layout-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 340px; 
   gap: 30px;
   margin-top: 25px;
+  align-items: start;
+}
+
+/* Penanganan elemen di dalam grid agar tidak memaksa kolom melebar */
+main, aside, section {
+  min-width: 0; 
+}
+
+/* Judul Section Standar dengan Border Hijau */
+.section-title {
+  font-size: 22px;
+  color: var(--dt-blue);
+  font-weight: 900;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  border-left: 5px solid var(--dt-green);
+  padding-left: 15px;
+}
+
+/* ================= COMPONENT SPECIFIC ================= */
+
+/* 1. Tombol BANYUMAS Berkedip dengan Drop Shadow (Header) */
+@keyframes blink-text {
+  50% { opacity: 0.3; }
+}
+
+.btn-banyumas {
+  background-color: var(--dt-red);
+  color: #ffffff !important;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 10px;
+  border-radius: 4px;
+  margin-left: 10px;
+  text-transform: uppercase;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.3); /* Drop Shadow */
+  animation: blink-text 1s step-start infinite;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 2. Sidebar Terpopuler - Gaya Polos (Borderless & Clean) */
+.popular-item-plain {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #e5e7eb;
+  transition: all 0.3s ease-in-out;
+  text-decoration: none;
+}
+
+.popular-item-plain:last-child {
+  border-bottom: none;
+}
+
+.popular-item-plain:hover {
+  padding-left: 8px;
+}
+
+.popular-item-plain:hover .news-title {
+  color: var(--dt-green) !important;
+}
+
+/* Perataan Angka Peringkat agar Judul Sejajar Vertikal */
+.rank-number {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 0.8;
+  min-width: 45px; /* Kunci lebar kolom angka */
+  color: var(--dt-gold);
+  opacity: 0.5;
+  transition: 0.3s;
+}
+
+.popular-item-plain:hover .rank-number {
+  color: var(--dt-green);
+  opacity: 1;
+}
+
+/* 3. Tombol "Lihat Semua" Berbasis CSS (Solusi Runtime Error) */
+.btn-more-plain {
+  margin-top: 15px;
+  display: block;
+  padding: 10px 0; 
+  color: var(--dt-blue); 
+  font-weight: 800; 
+  font-size: 12px; 
+  letter-spacing: 1px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  text-align: center;
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-more-plain:hover {
+  background-color: var(--dt-blue) !important;
+  color: #ffffff !important;
+}
+
+/* 4. Indikator Sinyal (Kajian Hari Ini) */
+@keyframes pulse-red {
+  0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.signal-indicator {
+  width: 8px;
+  height: 8px;
+  background-color: var(--dt-red);
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse-red 2s infinite;
+}
+
+/* ================= RESPONSIVE LOGIC ================= */
+@media (max-width: 992px) {
+  .main-grid, .bottom-layout-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+
+  .hide-on-mobile {
+    display: none !important; /* Murni CSS untuk mencegah Hydration Mismatch */
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+
+  .rank-number {
+    font-size: 24px;
+    min-width: 35px;
+  }
+
+  .btn-banyumas {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
 }

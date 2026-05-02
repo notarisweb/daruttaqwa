@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Amiri } from "next/font/google"; // Import Inter untuk teks latin, Amiri untuk Arab
+import { Inter, Amiri } from "next/font/google"; 
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -10,16 +10,29 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-// 2. Konfigurasi Font Arab (Amiri)
+// 2. Konfigurasi Font Arab (Amiri) - Sangat cocok untuk konten Pesantren
 const amiri = Amiri({
   subsets: ["arabic"],
   weight: ["400", "700"],
-  variable: "--font-amiri", // Kita simpan di CSS variable agar bisa dipanggil di mana saja
+  variable: "--font-amiri",
 });
 
 export const metadata: Metadata = {
-  title: "Abah Saif - Menggali Ilmu, Membuka Cahaya",
-  description: "Wadah edukasi dan literasi Islam yang menyajikan konten murni, menyejukkan, dan mencerahkan.",
+  // Menggunakan Nama Institusi dan Tagline Resmi
+  title: "Darut Taqwa Banyumas - Generasi Taqwa Yang Mendunia",
+  description: "Official Website Pondok Pesantren Darut Taqwa, Alasmalang, Kemranjen, Banyumas. Lembaga pendidikan Islam dengan program unggulan Tahfidz, KMI, dan SMP.",
+  metadataBase: new URL("https://daruttaqwabanyumas.com"), //
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Darut Taqwa Banyumas",
+    description: "Generasi Taqwa Yang Mendunia - Alasmalang, Kemranjen, Banyumas",
+    url: "https://daruttaqwabanyumas.com",
+    siteName: "Darut Taqwa Banyumas",
+    locale: "id_ID",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -35,11 +48,14 @@ export default function RootLayout({
           display: 'flex', 
           flexDirection: 'column', 
           minHeight: '100vh',
-          fontFamily: 'var(--font-inter), sans-serif' // Font default adalah latin
+          // Menggunakan font-inter sebagai standar teks latin
+          fontFamily: 'var(--font-inter), sans-serif',
+          backgroundColor: 'var(--bg-gray)' // Memastikan background mengikuti tema global
         }}
       >
         <Header />
         
+        {/* Main section fleksibel agar footer tetap berada di bawah halaman */}
         <main style={{ flex: 1 }}>
           {children}
         </main>

@@ -7,90 +7,73 @@ import RecommendationSection from "@/components/RecommendationSection";
 import LatestPosts from "@/components/LatestPosts";
 import KhutbahSidebar from "@/components/KhutbahSidebar";
 import InfoDakwah from "@/components/InfoDakwah";
+import UnitPrograms from "@/components/UnitPrograms";
+import UnitNews from "@/components/UnitNews"; 
+import VideoSection from "@/components/VideoSection"; // IMPORT KOMPONEN VIDEO
 
-// Menjamin data dari Project ID: deyoeizv selalu segar
+// Konfigurasi agar data selalu fresh
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; 
 
 export default async function Home() {
-  // Mengambil data Khutbah dari Sanity
+  // Mengambil data Khutbah untuk sidebar
   const khutbahData = await getKhutbahPosts() || [];
 
   return (
-    <div className="container" style={{ margin: '0 auto', maxWidth: '1200px', padding: '0 20px' }}>
-      
-      {/* 1. TOP NEWS (HIDDEN ON MOBILE) */}
-      <div className="hide-on-mobile">
-        <TopNews />
-      </div>
-
-      {/* 2. LAPIS UTAMA: HEADLINE & POPULAR */}
-      <div className="main-grid" style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 340px', 
-        gap: '40px', 
-        marginTop: '25px' 
-      }}>
-        <main>
-          {/* Headline Tetap Tampil di HP sebagai berita utama */}
-          <Headline />
-        </main>
+    <div className="home-wrapper">
+      <div className="container">
         
-        {/* POPULAR SIDEBAR (HIDDEN ON MOBILE) */}
-        <aside className="hide-on-mobile">
-          <PopularSidebar />
-        </aside>
-      </div>
-
-      {/* 3. REKOMENDASI ACAK (HIDDEN ON MOBILE) */}
-      <div className="hide-on-mobile">
-        <RecommendationSection />
-      </div>
-
-      {/* 4. LAYOUT BAWAH: KHUTBAH & INFO DAKWAH */}
-      <div className="bottom-layout-grid" style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 340px', 
-        gap: '40px', 
-        marginTop: '50px',
-        paddingBottom: '60px'
-      }}>
-        {/* LATEST POSTS FEED (HIDDEN ON MOBILE) */}
-        <section className="hide-on-mobile">
-          <h2 style={{ fontSize: '22px', color: 'var(--abah-blue)', fontWeight: '900', marginBottom: '25px', textTransform: 'uppercase' }}>
-            Postingan <span style={{ color: 'var(--abah-gold)' }}>Terbaru</span>
-          </h2>
-          <LatestPosts />
+        {/* 1. TOP NEWS */}
+        <section className="hide-on-mobile" style={{ marginTop: '20px' }}>
+          <TopNews />
         </section>
 
-        {/* SIDEBAR DAKWAH (ALWAYS VISIBLE) */}
-        {/* Di HP, bagian ini akan muncul tepat di bawah Headline */}
-        <aside style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-          <KhutbahSidebar articles={khutbahData} />
-          <InfoDakwah />
-        </aside>
+        {/* 2. MAIN GRID */}
+        <div className="main-grid">
+          <main className="main-content">
+            <Headline />
+          </main>
+          <aside className="hide-on-mobile">
+            <PopularSidebar />
+          </aside>
+        </div>
+
+        {/* 3. REKOMENDASI SECTION */}
+        <section className="hide-on-mobile">
+          <RecommendationSection />
+        </section>
+
+        {/* 4. PROGRAM UNGGULAN */}
+        <section style={{ marginTop: '50px' }}>
+          <UnitPrograms />
+        </section>
+
+        {/* 5. KABAR UNIT */}
+        <section>
+          <UnitNews />
+        </section>
+
+        {/* 6. KONTEN VIDEO - Diletakkan tepat di bawah Kabar Unit */}
+        <section style={{ marginTop: '50px', marginBottom: '20px' }}>
+          <VideoSection />
+        </section>
+
+        {/* 7. BOTTOM LAYOUT */}
+        <div className="bottom-layout-grid" style={{ marginTop: '50px' }}>
+          <section className="main-content">
+            <h2 className="section-title">
+              Postingan <span style={{ color: 'var(--dt-gold)' }}>Terbaru</span>
+            </h2>
+            <LatestPosts />
+          </section>
+
+          <aside className="sidebar-dakwah">
+            <KhutbahSidebar articles={khutbahData} />
+            <InfoDakwah />
+          </aside>
+        </div>
+
       </div>
-
-      {/* CSS UNTUK FILTER TAMPILAN MOBILE */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 992px) {
-          /* SEMBUNYIKAN BAGIAN YANG TIDAK DIINGINKAN */
-          .hide-on-mobile {
-            display: none !important;
-          }
-
-          /* Atur ulang grid menjadi satu kolom */
-          .main-grid, .bottom-layout-grid {
-            grid-template-columns: 1fr !important;
-            gap: 30px !important;
-            margin-top: 15px !important;
-          }
-
-          /* Pastikan urutan muncul: Headline baru Khutbah */
-          main { order: 1; }
-          .bottom-layout-grid aside { order: 2; }
-        }
-      `}} />
     </div>
   );
 }

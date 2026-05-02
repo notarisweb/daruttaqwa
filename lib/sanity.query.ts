@@ -2,7 +2,10 @@
 import { client } from "./sanity.client";
 import { groq } from "next-sanity";
 
-// Konfigurasi revalidate agar data selalu fresh di web (Production)
+/**
+ * Konfigurasi revalidate agar data selalu fresh di web (Production)
+ * revalidate: 0 memastikan setiap request mengambil data terbaru dari Sanity
+ */
 const revalidateConfig = { next: { revalidate: 0 } };
 
 /**
@@ -135,6 +138,25 @@ export async function getRelatedPosts(category: string, currentSlug: string) {
       "image": mainImage.asset->url
     }`,
     { category, currentSlug },
+    revalidateConfig
+  );
+}
+
+/**
+ * 8. Ambil Postingan Terpopuler (Berdasarkan jumlah views)
+ * Digunakan untuk mengisi widget BlogSidebar agar data muncul dinamis
+ */
+export async function getPopularPosts() {
+  return client.fetch(
+    groq`*[_type == "post"] | order(views desc)[0...5] {
+      _id,
+      title,
+      "slug": slug.current,
+      "image": mainImage.asset->url,
+      publishedAt,
+      views
+    }`,
+    {},
     revalidateConfig
   );
 }

@@ -5,10 +5,19 @@ import { schema } from './sanity/schemaTypes';
 
 export default defineConfig({
   name: 'default',
-  title: 'Abah Saif Studio',
-  projectId: 'v9y48nrd',
+  title: 'Darut Taqwa Studio', // Konsisten dengan nama institusi
+
+  // Update ke ID proyek terbaru sesuai data .env kamu
+  projectId: 'u9n0ne1d', 
   dataset: 'production',
-  plugins: [structureTool(), visionTool()],
+
+  basePath: '/studio', 
+
+  plugins: [
+    structureTool(), 
+    visionTool()
+  ],
+
   schema: {
     types: schema.types,
   },

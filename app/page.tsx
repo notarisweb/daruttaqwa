@@ -11,7 +11,6 @@ import UnitPrograms from "@/components/UnitPrograms";
 import UnitNews from "@/components/UnitNews"; 
 import VideoSection from "@/components/VideoSection";
 
-// Konfigurasi agar data selalu fresh (Penting untuk portal berita sekolah)
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; 
 
@@ -20,22 +19,19 @@ export default async function Home({
 }: { 
   searchParams: Promise<any> 
 }) {
-  // 1. Mengambil data Khutbah untuk sidebar secara Server-side
   const khutbahData = await getKhutbahPosts() || [];
-
-  // 2. Await searchParams untuk kebutuhan paginasi di LatestPosts
   const sParams = await searchParams;
 
   return (
     <div className="home-wrapper">
       <div className="container">
         
-        {/* 1. TOP NEWS - Flash News atau Berita Utama Terkini */}
-        <section className="hide-on-mobile" style={{ marginTop: '20px' }}>
+        {/* 1. TOP NEWS */}
+        <section style={{ marginTop: '20px' }}>
           <TopNews />
         </section>
 
-        {/* 2. MAIN GRID - Headline Utama & Sidebar Populer */}
+        {/* 2. MAIN GRID */}
         <div className="main-grid">
           <main className="main-content">
             <Headline />
@@ -46,34 +42,32 @@ export default async function Home({
           </aside>
         </div>
 
-        {/* 3. REKOMENDASI SECTION - Grid 4 Kolom Berita Pilihan */}
-        <section className="hide-on-mobile">
+        {/* 3. REKOMENDASI SECTION - Hapus hide-on-mobile buat testing */}
+        <section style={{ marginTop: '40px' }}>
           <RecommendationSection />
         </section>
 
-        {/* 4. PROGRAM UNGGULAN - Visualisasi Unit KMI & SMP IT */}
+        {/* 4. PROGRAM UNGGULAN */}
         <section style={{ marginTop: '50px' }}>
           <UnitPrograms />
         </section>
 
-        {/* 5. KABAR UNIT - Berita Spesifik dari Sanity (KMI & SMP) */}
-        <section>
+        {/* 5. KABAR UNIT (KMI & SMP) */}
+        <section style={{ marginTop: '50px' }}>
           <UnitNews />
         </section>
 
-        {/* 6. KONTEN VIDEO - Aksen Biru-Emas Khas Darut Taqwa */}
+        {/* 6. KONTEN VIDEO */}
         <section style={{ marginTop: '50px', marginBottom: '20px' }}>
           <VideoSection />
         </section>
 
-        {/* 7. BOTTOM LAYOUT - Postingan Terbaru & Sidebar Dakwah */}
+        {/* 7. BOTTOM LAYOUT */}
         <div className="bottom-layout-grid" style={{ marginTop: '50px' }}>
           <section className="main-content">
             <h2 className="section-title">
               Postingan <span style={{ color: 'var(--dt-gold)' }}>Terbaru</span>
             </h2>
-            
-            {/* Mengirimkan sParams agar paginasi di LatestPosts berfungsi */}
             <LatestPosts searchParams={sParams} />
           </section>
 

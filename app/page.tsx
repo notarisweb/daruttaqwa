@@ -1,5 +1,12 @@
 // app/page.tsx
-import { getKhutbahPosts } from "@/lib/sanity.query";
+import { 
+  getKhutbahPosts, 
+  getVideoPosts, 
+  getNewsPosts,
+  getPopularPosts,
+  getUnits,
+  getAllPosts
+} from "@/lib/sanity.query";
 import Headline from "@/components/Headline";
 import TopNews from "@/components/TopNews";
 import PopularSidebar from "@/components/PopularSidebar";
@@ -19,8 +26,24 @@ export default async function Home({
 }: { 
   searchParams: Promise<any> 
 }) {
-  const khutbahData = await getKhutbahPosts() || [];
-  const sParams = await searchParams;
+  // 1. Ambil data secara paralel untuk mempercepat loading server
+  const [
+    khutbahData, 
+    videoData, 
+    newsData, 
+    popularData, 
+    unitData, 
+    allPosts,
+    sParams
+  ] = await Promise.all([
+    getKhutbahPosts(),
+    getVideoPosts(),   // Data untuk VideoSection
+    getNewsPosts(),
+    getPopularPosts(),
+    getUnits(),        // Data untuk UnitPrograms
+    getAllPosts(),
+    searchParams
+  ]);
 
   return (
     <div className="home-wrapper">
@@ -28,28 +51,31 @@ export default async function Home({
         
         {/* 1. TOP NEWS */}
         <section style={{ marginTop: '20px' }}>
-          <TopNews />
+          <TopNews posts={newsData} />
         </section>
 
         {/* 2. MAIN GRID */}
         <div className="main-grid">
           <main className="main-content">
-            <Headline />
+            {/* Headline biasanya mengambil data dari News terbaru */}
+            <Headline posts={newsData} />
           </main>
           
           <aside className="hide-on-mobile">
-            <PopularSidebar />
+            {/* PopularSidebar sekarang menerima data dinamis dari Sanity */}
+            <PopularSidebar popularPosts={popularData} />
           </aside>
         </div>
 
-        {/* 3. REKOMENDASI SECTION - Hapus hide-on-mobile buat testing */}
+        {/* 3. REKOMENDASI SECTION */}
         <section style={{ marginTop: '40px' }}>
-          <RecommendationSection />
+          <RecommendationSection posts={allPosts} />
         </section>
 
         {/* 4. PROGRAM UNGGULAN */}
         <section style={{ marginTop: '50px' }}>
-          <UnitPrograms />
+          {/* Mengirimkan data unit pendidikan (KMI, SMP, dll) */}
+          <UnitPrograms units={unitData} />
         </section>
 
         {/* 5. KABAR UNIT (KMI & SMP) */}
@@ -59,7 +85,8 @@ export default async function Home({
 
         {/* 6. KONTEN VIDEO */}
         <section style={{ marginTop: '50px', marginBottom: '20px' }}>
-          <VideoSection />
+          {/* FIX: Mengirimkan videoData untuk mencegah build error */}
+          <VideoSection videos={videoData || []} />
         </section>
 
         {/* 7. BOTTOM LAYOUT */}
@@ -72,7 +99,8 @@ export default async function Home({
           </section>
 
           <aside className="sidebar-dakwah">
-            <KhutbahSidebar articles={khutbahData} />
+            {/* Khutbah ditarik secara dinamis dari kategori 'khutbah' */}
+            <KhutbahSidebar articles={khutbahData || []} />
             <InfoDakwah />
           </aside>
         </div>

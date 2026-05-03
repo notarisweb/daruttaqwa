@@ -1,3 +1,4 @@
+// schemas/post.ts
 export default {
   name: 'post',
   title: 'Konten Utama',
@@ -20,63 +21,91 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
+      name: 'youtubeUrl',
+      title: 'URL Video YouTube',
+      type: 'url',
+      description: 'Masukkan link YouTube untuk embed video dan thumbnail otomatis.',
+    },
+    {
       name: 'category',
       title: 'Kategori Induk',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Berita', value: 'berita' },
-          { title: 'Artikel', value: 'artikel' },
-          { title: 'Qur\'an Hadits', value: 'quran-hadits' }, // Pengganti Tafsir
-          { title: 'Adab dan Fawaid', value: 'adab-fawaid' }, // Pengganti Hadits Pilihan
-          { title: 'Fiqih Praktis', value: 'fiqih' },
-          { title: 'Mutiara Hikmah', value: 'hikmah' },
-          { title: 'Khutbah', value: 'khutbah' },
-          { title: 'Dzikir & Doa', value: 'dzikir-doa' },
-        ],
-      },
+      type: 'reference',
+      to: [{ type: 'category' }],
       validation: (Rule: any) => Rule.required(),
-    },
-    // SUB-KATEGORI DINAMIS
-    {
-      name: 'subCategory',
-      title: 'Sub-Kategori',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Qur\'an', value: 'quran' },
-          { title: 'Hadits', value: 'hadits' },
-          { title: 'Adab', value: 'adab' },
-          { title: 'Fawaid', value: 'fawaid' },
-        ],
-      },
-      // Logika agar Sub-Kategori hanya muncul jika Kategori Induk yang sesuai dipilih
-      hidden: ({ document }: any) => 
-        !['quran-hadits', 'adab-fawaid'].includes(document?.category)
     },
     {
       name: 'author',
       title: 'Penulis/Narasumber',
-      type: 'string',
-      initialValue: 'Abah Saif',
+      type: 'reference',
+      to: [{ type: 'author' }],
+      validation: (Rule: any) => Rule.required(),
     },
     {
       name: 'mainImage',
-      title: 'Gambar Utama',
+      title: 'Gambar Utama (Manual)',
       type: 'image',
+      description: 'Kosongkan jika menggunakan thumbnail YouTube.',
       options: { hotspot: true },
+      // --- PENAMBAHAN UNTUK SEO ---
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text (SEO)',
+          description: 'Penting untuk aksesibilitas dan SEO. Jelaskan isi gambar.',
+          validation: (Rule: any) => Rule.required(),
+        },
+        {
+          name: 'caption',
+          type: 'string',
+          title: 'Caption',
+          description: 'Keterangan gambar yang akan muncul di bawah foto.',
+        }
+      ]
     },
     {
       name: 'publishedAt',
       title: 'Tanggal Terbit',
       type: 'datetime',
-      initialValue: (new Date()).toISOString(),
+      initialValue: () => new Date().toISOString(),
     },
     {
       name: 'body',
       title: 'Isi Konten',
       type: 'array',
-      of: [{ type: 'block' }], 
+      of: [
+        { type: 'block' },
+        { 
+          type: 'image', 
+          options: { hotspot: true },
+          // --- PENAMBAHAN UNTUK SEO DI DALAM BODY ---
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Alternative Text (SEO)',
+              validation: (Rule: any) => Rule.required(),
+            },
+            {
+              name: 'caption',
+              type: 'string',
+              title: 'Caption',
+            }
+          ]
+        },
+        {
+          name: 'youtube',
+          type: 'object',
+          title: 'YouTube Embed',
+          fields: [
+            {
+              name: 'url',
+              type: 'url',
+              title: 'YouTube video URL'
+            }
+          ]
+        }
+      ],
     },
     {
       name: 'attachment',
@@ -90,6 +119,13 @@ export default {
           title: 'Keterangan File',
         }
       ]
+    },
+    {
+      name: 'views',
+      title: 'Jumlah Dilihat',
+      type: 'number',
+      initialValue: 0,
+      readOnly: true,
     },
   ],
 }

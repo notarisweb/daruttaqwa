@@ -4,12 +4,11 @@ import { groq } from "next-sanity";
 
 /**
  * Konfigurasi revalidate agar data selalu fresh di web (Production)
- * revalidate: 0 memastikan setiap request mengambil data terbaru dari Sanity
  */
 const revalidateConfig = { next: { revalidate: 0 } };
 
 /**
- * 1. Ambil SEMUA postingan terbaru (Homepage & Rekomendasi)
+ * 1. Ambil Semua Postingan Terbaru
  */
 export async function getAllPosts() {
   return client.fetch(
@@ -18,9 +17,10 @@ export async function getAllPosts() {
       title,
       "slug": slug.current,
       "image": mainImage.asset->url,
+      youtubeUrl,
       publishedAt,
-      category,
-      subCategory
+      "category": category->title,
+      "categorySlug": category->slug.current
     }`,
     {},
     revalidateConfig
@@ -28,15 +28,17 @@ export async function getAllPosts() {
 }
 
 /**
- * 2. Ambil Berita Terbaru (Headline)
+ * 2. Ambil Berita Terbaru (Untuk Headline)
+ * PERBAIKAN: Menambahkan fungsi getNewsPosts yang hilang untuk memperbaiki build error
  */
 export async function getNewsPosts() {
   return client.fetch(
-    groq`*[_type == "post" && category == "berita"] | order(publishedAt desc)[0...6] {
+    groq`*[_type == "post" && category->slug.current == "berita"] | order(publishedAt desc)[0...6] {
       _id,
       title,
       "slug": slug.current,
       "image": mainImage.asset->url,
+      youtubeUrl,
       publishedAt,
       "category": "Berita"
     }`,
@@ -46,12 +48,86 @@ export async function getNewsPosts() {
 }
 
 /**
- * 3. Ambil Artikel Terbaru (Sidebar Artikel) 
- * PENTING: Fungsi ini yang dicari oleh LatestArticlesSidebar.tsx
+ * 3. Ambil Konten Video (Untuk VideoSection)
+ */
+export async function getVideoPosts() {
+  return client.fetch(
+    groq`*[_type == "post" && defined(youtubeUrl)] | order(publishedAt desc)[0...6] {
+      _id,
+      title,
+      "slug": slug.current,
+      youtubeUrl,
+      "image": mainImage.asset->url,
+      "source": category->title,
+      "categorySlug": category->slug.current,
+      "time": publishedAt
+    }`,
+    {},
+    revalidateConfig
+  );
+}
+
+/**
+ * 4. Detail Postingan Lengkap
+ */
+export async function getSinglePost(slug: string) {
+  if (!slug) return null;
+  return client.fetch(
+    groq`*[_type == "post" && slug.current == $slug][0] {
+      _id,
+      title,
+      "slug": slug.current,
+      youtubeUrl,
+      "image": mainImage.asset->url,
+      "imageAlt": mainImage.alt,
+      "imageCaption": mainImage.caption,
+      publishedAt,
+      "category": category->title,
+      "categorySlug": category->slug.current,
+      body[] {
+        ...,
+        _type == "image" => {
+          ...,
+          asset->
+        }
+      },
+      "authorName": author->name,
+      "authorImage": author->image.asset->url,
+      "attachmentUrl": attachment.asset->url,
+      "attachmentDescription": attachment.description,
+      views
+    }`,
+    { slug },
+    revalidateConfig
+  );
+}
+
+/**
+ * 5. Fungsi Dinamis Rubrik (Halaman Kategori)
+ */
+export async function getPostsByCategory(categorySlug: string) {
+  return client.fetch(
+    groq`*[_type == "post" && category->slug.current == $categorySlug] | order(publishedAt desc) {
+      _id,
+      title,
+      "slug": slug.current,
+      "image": mainImage.asset->url,
+      youtubeUrl,
+      publishedAt,
+      "categoryName": category->title,
+      "excerpt": array::join(string::split(pt::text(body), "")[0...150], "") + "..."
+    }`,
+    { categorySlug },
+    revalidateConfig
+  );
+}
+
+/**
+ * 6. Ambil Postingan Artikel (Sidebar Artikel)
  */
 export async function getArticlePosts() {
   return client.fetch(
-    groq`*[_type == "post" && category == "artikel"] | order(publishedAt desc)[0...5] {
+    groq`*[_type == "post" && category->slug.current == "artikel"] | order(publishedAt desc)[0...5] {
       _id,
       title,
       "slug": slug.current,
@@ -65,59 +141,16 @@ export async function getArticlePosts() {
 }
 
 /**
- * 4. Fungsi Dinamis Rubrik (Mendukung filter Kategori Induk atau Sub-Kategori)
- */
-export async function getPostsByCategory(categoryName: string) {
-  return client.fetch(
-    groq`*[_type == "post" && (category == $categoryName || subCategory == $categoryName)] | order(publishedAt desc) {
-      _id,
-      title,
-      "slug": slug.current,
-      "image": mainImage.asset->url,
-      publishedAt,
-      category,
-      subCategory,
-      "excerpt": array::join(string::split(pt::text(body), "")[0...150], "") + "..."
-    }`,
-    { categoryName },
-    revalidateConfig
-  );
-}
-
-/**
- * 5. Ambil Detail Konten (LENGKAP dengan PDF/PPT & Author)
- */
-export async function getSinglePost(slug: string) {
-  if (!slug) return null;
-  return client.fetch(
-    groq`*[_type == "post" && slug.current == $slug][0] {
-      _id,
-      title,
-      "slug": slug.current,
-      "image": mainImage.asset->url,
-      publishedAt,
-      category,
-      subCategory,
-      body,
-      author,
-      "attachmentUrl": attachment.asset->url,
-      "attachmentDescription": attachment.description
-    }`,
-    { slug },
-    revalidateConfig
-  );
-}
-
-/**
- * 6. Ambil Khutbah Terbaru (Sidebar Khutbah)
+ * 7. Ambil Khutbah Terbaru (Sidebar Khutbah)
  */
 export async function getKhutbahPosts() {
   return client.fetch(
-    groq`*[_type == "post" && category == "khutbah"] | order(publishedAt desc)[0...5] {
+    groq`*[_type == "post" && category->slug.current == "khutbah"] | order(publishedAt desc)[0...5] {
       _id,
       title,
       "slug": slug.current,
       "image": mainImage.asset->url,
+      youtubeUrl,
       publishedAt,
       "category": "Khutbah"
     }`,
@@ -127,24 +160,59 @@ export async function getKhutbahPosts() {
 }
 
 /**
- * 7. Ambil Postingan Terkait (Bawah Artikel)
+ * 8. Galeri Kegiatan (Dokumentasi)
  */
-export async function getRelatedPosts(category: string, currentSlug: string) {
+export async function getGallery() {
   return client.fetch(
-    groq`*[_type == "post" && category == $category && slug.current != $currentSlug][0...3] {
+    groq`*[_type == "gallery"] | order(publishedAt desc) {
       _id,
       title,
-      "slug": slug.current,
-      "image": mainImage.asset->url
+      "image": mainImage.asset->url,
+      description,
+      publishedAt
     }`,
-    { category, currentSlug },
+    {},
     revalidateConfig
   );
 }
 
 /**
- * 8. Ambil Postingan Terpopuler (Berdasarkan jumlah views)
- * Digunakan untuk mengisi widget BlogSidebar agar data muncul dinamis
+ * 9. Unit Pendidikan (Profil Sekolah)
+ */
+export async function getUnits() {
+  return client.fetch(
+    groq`*[_type == "unit"] | order(name asc) {
+      _id,
+      name,
+      "slug": slug.current,
+      description,
+      "image": mainImage.asset->url,
+      features
+    }`,
+    {},
+    revalidateConfig
+  );
+}
+
+/**
+ * 10. Pengaturan Website Global (Site Settings)
+ */
+export async function getSiteSettings() {
+  return client.fetch(
+    groq`*[_type == "siteSettings"][0] {
+      title,
+      whatsapp,
+      address,
+      runningText,
+      socialMedia
+    }`,
+    {},
+    revalidateConfig
+  );
+}
+
+/**
+ * 11. Postingan Terpopuler (Berdasarkan Views)
  */
 export async function getPopularPosts() {
   return client.fetch(
@@ -153,10 +221,29 @@ export async function getPopularPosts() {
       title,
       "slug": slug.current,
       "image": mainImage.asset->url,
+      youtubeUrl,
       publishedAt,
-      views
+      views,
+      "category": category->title
     }`,
     {},
+    revalidateConfig
+  );
+}
+
+/**
+ * 12. Postingan Terkait (Bawah Artikel)
+ */
+export async function getRelatedPosts(categorySlug: string, currentSlug: string) {
+  return client.fetch(
+    groq`*[_type == "post" && category->slug.current == $categorySlug && slug.current != $currentSlug][0...3] {
+      _id,
+      title,
+      "slug": slug.current,
+      "image": mainImage.asset->url,
+      youtubeUrl
+    }`,
+    { categorySlug, currentSlug },
     revalidateConfig
   );
 }

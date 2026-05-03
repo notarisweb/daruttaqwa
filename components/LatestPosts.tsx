@@ -5,22 +5,34 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Eye, CalendarDays, ArrowRight } from "lucide-react";
 
+// Helper untuk deteksi Thumbnail YouTube (Konsistensi Global)
+function getYoutubeThumb(url: string) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  const id = (match && match[2].length === 11) ? match[2] : null;
+  return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null;
+}
+
 async function getPaginatedPosts(page: number) {
   const limit = 5;
   const start = (page - 1) * limit;
   const end = start + limit;
 
-  const query = groq`*[_type in ["post", "jadwalKajian"]] | order(coalesce(publishedAt, _createdAt) desc) [$start...$end] {
+  // QUERY TERBARU: Mendukung Reference Category & YouTube URL
+  const query = groq`*[_type == "post"] | order(publishedAt desc) [$start...$end] {
     _id,
-    "title": coalesce(title, tema), 
+    title,
     "slug": slug.current,
-    "image": coalesce(flyerImage.asset->url, mainImage.asset->url),
-    "publishedAt": coalesce(publishedAt, _createdAt),
-    "category": coalesce(category, categories[0]->title, "Jadwal Kajian"),
+    youtubeUrl,
+    "image": mainImage.asset->url,
+    "publishedAt": publishedAt,
+    "category": category->title,
+    "categorySlug": category->slug.current,
     "views": coalesce(views, 0)
   }`;
 
-  return client.fetch(query, { start, end: end + 1 }, { cache: 'no-store' });
+  return client.fetch(query, { start, end: end + 1 }, { next: { revalidate: 0 } });
 }
 
 export default async function LatestPosts({ 
@@ -39,7 +51,11 @@ export default async function LatestPosts({
     <section className="latest-posts-wrapper">
       <div className="posts-stack-vertical">
         {posts.map((post: any) => {
-          const categoryPath = post.category?.toLowerCase().replace(/\s+/g, '-') || "artikel";
+          // Navigasi URL berdasarkan slug kategori dinamis
+          const categoryPath = post.categorySlug || "berita";
+          
+          // Logika Thumbnail: Gambar Manual > YouTube Thumb > Placeholder
+          const displayImage = post.image || getYoutubeThumb(post.youtubeUrl) || "/logo.png";
           
           return (
             <Link 
@@ -47,20 +63,27 @@ export default async function LatestPosts({
               key={post._id} 
               className="post-item-clean group"
             >
-              {/* THUMBNAIL KIRI - UKURAN DIPERBESAR */}
+              {/* THUMBNAIL KIRI */}
               <div className="visual-box">
                 <Image 
-                  src={post.image || "/logo-md.png"} 
+                  src={displayImage} 
                   alt={post.title} 
                   fill
                   sizes="200px"
                   className="object-cover transition-transform duration-500 group-hover:scale-110" 
                 />
+                {post.youtubeUrl && !post.image && (
+                   <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: '30px', height: '30px', background: 'rgba(255,255,255,0.9)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                         <div style={{ width: 0, height: 0, borderTop: '6px solid transparent', borderBottom: '6px solid transparent', borderLeft: '10px solid #1e2f65', marginLeft: '2px' }}></div>
+                      </div>
+                   </div>
+                )}
               </div>
 
               {/* KONTEN KANAN */}
               <div className="text-box">
-                <span className="cat-text">{post.category}</span>
+                <span className="cat-text">{post.category || "Berita"}</span>
                 <h3 className="title-text">{post.title}</h3>
                 
                 <div className="meta-row">
@@ -75,7 +98,7 @@ export default async function LatestPosts({
                   <div className="meta-dot"></div>
                   <div className="meta-item views">
                     <Eye size={14} />
-                    <span>{post.views || 0} View</span>
+                    <span>{post.views} View</span>
                   </div>
                 </div>
               </div>
@@ -88,11 +111,11 @@ export default async function LatestPosts({
         })}
 
         {posts.length === 0 && (
-           <div className="empty-box">Belum ada postingan terbaru.</div>
+           <div className="empty-box">Belum ada postingan terbaru saat ini.</div>
         )}
       </div>
 
-      {/* PAGINATION PILL */}
+      {/* PAGINATION */}
       <div className="pagination-wrapper">
         <div className="nav-pill">
           {currentPage > 1 ? (
@@ -104,7 +127,7 @@ export default async function LatestPosts({
           )}
 
           <div className="page-info">
-             <span className="num">{currentPage}</span>
+              <span className="num">{currentPage}</span>
           </div>
 
           {hasNextPage ? (
@@ -132,10 +155,8 @@ export default async function LatestPosts({
         }
 
         .post-item-clean:last-child { border-bottom: none; }
-        
         .post-item-clean:hover { padding-left: 10px; }
 
-        /* UKURAN VISUAL BOX DIPERBESAR */
         .visual-box { 
           width: 180px; height: 115px; 
           border-radius: 14px; overflow: hidden; 
@@ -150,9 +171,8 @@ export default async function LatestPosts({
           text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 6px;
         }
 
-        /* FONT JUDUL DIPERBESAR */
         .title-text { 
-          font-size: 20px; font-weight: 800; color: #1e2f65; 
+          font-size: 19px; font-weight: 800; color: #1e2f65; 
           margin-bottom: 10px; line-height: 1.3;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
           transition: color 0.3s ease;
@@ -176,12 +196,10 @@ export default async function LatestPosts({
         .nav-btn.disabled { color: #cbd5e1; cursor: not-allowed; }
         .page-info { padding: 0 20px; font-weight: 900; color: #1e2f65; font-size: 16px; border-left: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; }
 
-        .empty-box { text-align: center; padding: 50px; color: #94a3b8; border: 2px dashed #f1f5f9; border-radius: 16px; }
-
         @media (max-width: 600px) {
           .post-item-clean { gap: 15px; padding: 20px 0; }
-          .visual-box { width: 120px; height: 85px; }
-          .title-text { font-size: 15px; }
+          .visual-box { width: 110px; height: 75px; border-radius: 10px; }
+          .title-text { font-size: 14px; }
           .arrow-box { display: none; }
         }
       `}} />

@@ -1,136 +1,166 @@
-"use client";
+// components/RecommendationSection.tsx
+import React from 'react';
+import Link from 'next/link';
+import { formatDistance } from 'date-fns';
+import { id } from 'date-fns/locale';
 
-import { getAllPosts } from "@/lib/sanity.query";
-import Link from "next/link";
-import { useState, useEffect } from "react";
+interface RecommendationSectionProps {
+  posts: any[];
+}
 
-export default function RecommendationSection() {
-  const [recommendedData, setRecommendedData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+// Helper untuk deteksi Thumbnail YouTube (Konsistensi Global)
+function getYoutubeThumb(url: string) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  const id = (match && match[2].length === 11) ? match[2] : null;
+  return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null;
+}
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const allData = await getAllPosts();
-        if (allData && allData.length > 0) {
-          // Mengambil 8 data secara acak untuk grid 4x2
-          const shuffled = [...allData]
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 8);
-          setRecommendedData(shuffled);
-        }
-      } catch (error) {
-        console.error("Gagal mengambil data rekomendasi:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
+export default function RecommendationSection({ posts = [] }: RecommendationSectionProps) {
+  // Mengambil 8 data secara acak dari data yang sudah ada di server
+  const recommendedData = [...posts]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 8);
 
-  if (loading) return <div style={{ minHeight: '300px', padding: '20px', color: '#888' }}>Memuat rekomendasi...</div>;
-  if (!loading && recommendedData.length === 0) return null;
+  if (recommendedData.length === 0) return null;
 
   return (
     <section style={{ marginTop: '40px', marginBottom: '40px' }}>
       {/* Header Section */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2 style={{ 
-          fontSize: '20px', 
-          color: 'var(--dt-blue)', 
+          fontSize: '22px', 
+          color: '#1e2f65', 
           fontWeight: '900', 
           margin: 0,
           textTransform: 'uppercase'
         }}>
-          Rekomendasi <span style={{ color: 'var(--dt-gold)' }}>Untuk Anda</span>
+          Rekomendasi <span style={{ color: '#f9c80e' }}>Untuk Anda</span>
         </h2>
-        <Link href="/berita" style={{ fontSize: '12px', color: '#666', fontWeight: '700', textDecoration: 'none' }}>
+        <Link href="/berita" style={{ fontSize: '13px', color: '#64748b', fontWeight: '800', textDecoration: 'none' }}>
           SELENGKAPNYA ❯
         </Link>
       </div>
 
-      {/* Grid 4 Kolom sesuai Gambar */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(4, 1fr)', 
-        gap: '20px' 
-      }}>
-        {recommendedData.map((item: any) => (
-          <Link 
-            href={`/artikel/${item.slug}`} 
-            key={item._id} 
-            style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
-            className="recommendation-card"
-          >
-            {/* Thumbnail */}
-            <div style={{ 
-              width: '100%', 
-              aspectRatio: '16 / 9', 
-              borderRadius: '10px', 
-              overflow: 'hidden', 
-              marginBottom: '12px', 
-              backgroundColor: '#eee',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-            }}>
-              <img 
-                src={item.image || "https://via.placeholder.com/400/225?text=Darut+Taqwa"} 
-                alt={item.title} 
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  objectFit: 'cover',
-                  transition: 'transform 0.3s ease'
-                }} 
-                className="rec-img"
-              />
-            </div>
+      {/* Grid 4 Kolom */}
+      <div className="rec-grid">
+        {recommendedData.map((item: any) => {
+          const displayImage = item.image || getYoutubeThumb(item.youtubeUrl) || "/logo.png";
+          const categoryPath = item.categorySlug || "berita";
 
-            {/* Judul Berita */}
-            <h3 style={{ 
-              fontSize: '15px', 
-              fontWeight: '700', 
-              lineHeight: '1.3', 
-              margin: '0 0 6px 0', 
-              color: '#1a1a1a',
-              display: '-webkit-box', 
-              WebkitLineClamp: 2, 
-              WebkitBoxOrient: 'vertical', 
-              overflow: 'hidden'
-            }}>
-              {item.title}
-            </h3>
+          return (
+            <Link 
+              href={`/${categoryPath}/${item.slug}`} 
+              key={item._id} 
+              className="recommendation-card"
+            >
+              {/* Thumbnail Container */}
+              <div className="thumb-container">
+                <img 
+                  src={displayImage} 
+                  alt={item.title} 
+                  className="rec-img"
+                />
+                {item.youtubeUrl && !item.image && (
+                   <div className="play-overlay">
+                      <div className="play-icon"></div>
+                   </div>
+                )}
+              </div>
 
-            {/* Meta Data (Waktu) */}
-            <p style={{ 
-              fontSize: '12px', 
-              color: '#888', 
-              margin: 0 
-            }}>
-              {/* Logika waktu statis atau dinamis sesuai data Sanity-mu */}
-              1 jam lalu
-            </p>
-          </Link>
-        ))}
+              {/* Judul Berita */}
+              <h3 className="rec-title">
+                {item.title}
+              </h3>
+
+              {/* Meta Data */}
+              <p className="rec-meta">
+                {item.publishedAt ? formatDistance(new Date(item.publishedAt), new Date(), { addSuffix: true, locale: id }) : 'Baru saja'}
+              </p>
+            </Link>
+          );
+        })}
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
+        .rec-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 25px;
+        }
+        .recommendation-card {
+          text-decoration: none;
+          color: inherit;
+          display: block;
+          transition: transform 0.3s ease;
+        }
+        .thumb-container {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          border-radius: 12px;
+          overflow: hidden;
+          margin-bottom: 12px;
+          background-color: #f1f5f9;
+          position: relative;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .rec-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.5s ease;
+        }
+        .rec-title {
+          fontSize: 15px;
+          font-weight: 700;
+          line-height: 1.4;
+          margin: 0 0 8px 0;
+          color: #1e293b;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          transition: color 0.3s;
+        }
+        .rec-meta {
+          font-size: 12px;
+          color: #94a3b8;
+          margin: 0;
+          font-weight: 600;
+        }
         .recommendation-card:hover .rec-img {
-          transform: scale(1.05);
+          transform: scale(1.1);
         }
-        .recommendation-card:hover h3 {
-          color: var(--dt-green) !important;
+        .recommendation-card:hover .rec-title {
+          color: #1a9c69;
         }
-        @media (max-width: 992px) {
-          div[style*="gridTemplateColumns: repeat(4, 1fr)"] {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
+        .play-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0,0,0,0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .play-icon {
+          width: 0; height: 0; 
+          border-top: 8px solid transparent;
+          border-bottom: 8px solid transparent;
+          border-left: 12px solid white;
+        }
+
+        @media (max-width: 1024px) {
+          .rec-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+          .rec-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+          .rec-title { font-size: 14px; }
         }
         @media (max-width: 480px) {
-          div[style*="gridTemplateColumns: repeat(4, 1fr)"] {
-            grid-template-columns: 1fr !important;
-          }
+          .rec-grid { grid-template-columns: 1fr; }
         }
-      `}</style>
+      `}} />
     </section>
   );
 }

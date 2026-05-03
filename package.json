@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-email/components": "^1.0.12",
     "@sanity/client": "^6.21.0",
     "@sanity/vision": "^5.9.0",
     "@supabase/supabase-js": "^2.105.1",
@@ -17,6 +18,7 @@
     "next-sanity": "^12.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "resend": "^6.12.2",
     "sanity": "^5.9.0",
     "styled-components": "^6.3.9"
   },

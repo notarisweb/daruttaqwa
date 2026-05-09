@@ -87,9 +87,9 @@ export default function Footer() {
         <div>
           <h4 style={{ fontSize: '15px', fontWeight: '800', borderLeft: '4px solid #1e2f65', paddingLeft: '10px', marginBottom: '20px', color: '#1e2f65', textTransform: 'uppercase' }}>Jaringan Umat</h4>
           <ul style={{ listStyle: 'none', padding: 0, fontSize: '14px', color: '#666', lineHeight: '2.4' }}>
-            <li><Link href="/ranting" style={{ textDecoration: 'none', color: 'inherit' }}>Pimpinan Ranting</Link></li>
-            <li><Link href="/masjid" style={{ textDecoration: 'none', color: 'inherit' }}>Data Masjid & Mushola</Link></li>
-            <li><Link href="/aum" style={{ textDecoration: 'none', color: 'inherit' }}>Amal Usaha (AUM)</Link></li>
+            <li><Link href="https://herbanos.id" style={{ textDecoration: 'none', color: 'inherit' }}>Kesehatan</Link></li>
+            <li><Link href="https://jasaqiqah.my.id" style={{ textDecoration: 'none', color: 'inherit' }}>Jasa Aqiqah</Link></li>
+            <li><Link href="https://onislam.web.id" style={{ textDecoration: 'none', color: 'inherit' }}>Media Islam</Link></li>
             <li style={{ marginTop: '12px' }}>
               <Link href="/donasi" style={{ backgroundColor: '#1e2f65', color: '#fff', padding: '8px 15px', borderRadius: '4px', fontWeight: 'bold', textDecoration: 'none', fontSize: '12px' }}>
                 INFAQ & DONASI

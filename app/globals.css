@@ -1,54 +1,127 @@
-/* ================= CSS VARIABLES ================= */
-:root {
-  /* Identitas Utama Darut Taqwa */
-  --dt-blue: #1e2f65;         /* Biru Tua Logo */
-  --dt-blue-dark: #15224a;
-  --dt-green: #1a9c69;        /* Hijau Logo */
-  --dt-green-dark: #147a52;
-  --dt-gold: #f9c80e;         /* Emas Logo */
-  --dt-gold-dark: #d4ab0b;
-  
-  /* Status & Netral */
-  --dt-red: #ef4444;          /* Merah untuk indikator/tombol */
-  --bg-gray: #f4f7f6;
-  --text-dark: #222;
-  --text-muted: #666;
+/* =========================================================
+   TAILWIND
+========================================================= */
+@import "tailwindcss";
 
-  /* Font Fallback dari layout.tsx */
-  --font-main: var(--font-inter), -apple-system, sans-serif;
+/* =========================================================
+   CSS VARIABLES
+========================================================= */
+:root {
+  /* Brand */
+  --dt-blue: #1e2f65;
+  --dt-blue-dark: #15224a;
+
+  --dt-green: #1a9c69;
+  --dt-green-dark: #147a52;
+
+  --dt-gold: #f9c80e;
+  --dt-gold-dark: #d4ab0b;
+
+  --dt-red: #ef4444;
+
+  /* Neutral */
+  --bg-gray: #f4f7f6;
+  --bg-white: #ffffff;
+
+  --text-dark: #1f2937;
+  --text-muted: #6b7280;
+
+  /* Fonts */
+  --font-main: var(--font-inter), sans-serif;
   --font-arab: var(--font-amiri), serif;
 }
 
-/* ================= RESET & BASE ================= */
-* {
+/* =========================================================
+   RESET
+========================================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box !important; /* Kunci lebar agar tidak meluber */
-}
-
-html, body {
-  overflow-x: hidden; /* Anti scroll horizontal */
+  overflow-x: hidden;
   width: 100%;
-  font-family: var(--font-main);
-  background-color: var(--bg-gray);
+  background: var(--bg-gray);
   color: var(--text-dark);
-  scroll-behavior: smooth;
+  font-family: var(--font-main);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-a { 
-  text-decoration: none !important; 
+/* =========================================================
+   TYPOGRAPHY
+========================================================= */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
   color: inherit;
-  transition: 0.3s ease;
+  transition: 0.25s ease;
 }
 
-ul { list-style: none; }
+img {
+  max-width: 100%;
+  display: block;
+}
 
-/* ================= LAYOUT UTILITIES ================= */
+/* =========================================================
+   SVG FIX (PENTING BANGET)
+========================================================= */
+svg {
+  display: block;
+  flex-shrink: 0;
+  vertical-align: middle;
+  max-width: 100%;
+}
+
+/* jangan pernah width:100% untuk svg */
+svg:not([width]) {
+  width: 1.25rem;
+}
+
+svg:not([height]) {
+  height: 1.25rem;
+}
+
+/* =========================================================
+   LIST RESET
+========================================================= */
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* =========================================================
+   LAYOUT
+========================================================= */
 .container {
-  max-width: 1200px !important; /* Standar Lebar Portal Berita */
-  margin: 0 auto !important;
-  padding: 0 20px;
   width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 20px;
 }
 
 .home-wrapper {
@@ -56,64 +129,95 @@ ul { list-style: none; }
   padding-bottom: 60px;
 }
 
-/* Kunci Grid Layout agar Sidebar Tetap di Kanan */
-.main-grid, .bottom-layout-grid {
+.main-grid,
+.bottom-layout-grid {
   display: grid;
-  grid-template-columns: 1fr 340px; 
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 30px;
-  margin-top: 25px;
   align-items: start;
+  margin-top: 25px;
 }
 
-/* Penanganan elemen di dalam grid agar tidak memaksa kolom melebar */
-main, aside, section {
-  min-width: 0; 
+main,
+aside,
+section,
+article,
+div {
+  min-width: 0;
 }
 
-/* Judul Section Standar dengan Border Hijau */
+/* =========================================================
+   SECTION TITLE
+========================================================= */
 .section-title {
+  position: relative;
   font-size: 22px;
-  color: var(--dt-blue);
   font-weight: 900;
-  margin-bottom: 25px;
+  color: var(--dt-blue);
   text-transform: uppercase;
-  border-left: 5px solid var(--dt-green);
-  padding-left: 15px;
+  padding-left: 16px;
+  margin-bottom: 24px;
+  line-height: 1.2;
 }
 
-/* ================= COMPONENT SPECIFIC ================= */
+.section-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 5px;
+  height: calc(100% - 4px);
+  border-radius: 999px;
+  background: var(--dt-green);
+}
 
-/* 1. Tombol BANYUMAS Berkedip dengan Drop Shadow (Header) */
+/* =========================================================
+   BUTTON BANYUMAS
+========================================================= */
 @keyframes blink-text {
-  50% { opacity: 0.3; }
+  50% {
+    opacity: 0.35;
+  }
 }
 
 .btn-banyumas {
-  background-color: var(--dt-red);
-  color: #ffffff !important;
-  font-size: 11px;
-  font-weight: 900;
-  padding: 2px 10px;
-  border-radius: 4px;
-  margin-left: 10px;
-  text-transform: uppercase;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.3); /* Drop Shadow */
-  animation: blink-text 1s step-start infinite;
-  border: none;
-  cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+
+  padding: 4px 10px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: var(--dt-red);
+  color: white !important;
+
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+  animation: blink-text 1s step-start infinite;
 }
 
-/* 2. Sidebar Terpopuler - Gaya Polos (Borderless & Clean) */
+/* =========================================================
+   POPULAR ITEM
+========================================================= */
 .popular-item-plain {
-  display: flex !important;
+  display: flex;
   align-items: flex-start;
-  gap: 15px;
-  padding: 15px 0;
+  gap: 14px;
+
+  padding: 16px 0;
+
   border-bottom: 1px solid #e5e7eb;
-  transition: all 0.3s ease-in-out;
-  text-decoration: none;
+
+  transition: 0.25s ease;
 }
 
 .popular-item-plain:last-child {
@@ -121,75 +225,115 @@ main, aside, section {
 }
 
 .popular-item-plain:hover {
-  padding-left: 8px;
+  transform: translateX(4px);
 }
 
 .popular-item-plain:hover .news-title {
-  color: var(--dt-green) !important;
+  color: var(--dt-green);
 }
 
-/* Perataan Angka Peringkat agar Judul Sejajar Vertikal */
 .rank-number {
+  min-width: 42px;
+
   font-size: 32px;
+  line-height: 0.9;
   font-weight: 900;
-  line-height: 0.8;
-  min-width: 45px; /* Kunci lebar kolom angka */
+
   color: var(--dt-gold);
+
   opacity: 0.5;
-  transition: 0.3s;
+
+  transition: 0.25s ease;
 }
 
 .popular-item-plain:hover .rank-number {
-  color: var(--dt-green);
   opacity: 1;
+  color: var(--dt-green);
 }
 
-/* 3. Tombol "Lihat Semua" Berbasis CSS (Solusi Runtime Error) */
+/* =========================================================
+   BUTTON MORE
+========================================================= */
 .btn-more-plain {
-  margin-top: 15px;
   display: block;
-  padding: 10px 0; 
-  color: var(--dt-blue); 
-  font-weight: 800; 
-  font-size: 12px; 
-  letter-spacing: 1px;
-  border: 1px solid #eee;
-  border-radius: 6px;
+
+  margin-top: 18px;
+  padding: 12px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+
   text-align: center;
-  background-color: transparent;
-  transition: all 0.3s ease;
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+
+  color: var(--dt-blue);
+
+  transition: 0.25s ease;
 }
 
 .btn-more-plain:hover {
-  background-color: var(--dt-blue) !important;
-  color: #ffffff !important;
+  background: var(--dt-blue);
+  color: white !important;
 }
 
-/* 4. Indikator Sinyal (Kajian Hari Ini) */
+/* =========================================================
+   SIGNAL INDICATOR
+========================================================= */
 @keyframes pulse-red {
-  0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-  70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-  100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
 }
 
 .signal-indicator {
   width: 8px;
   height: 8px;
-  background-color: var(--dt-red);
-  border-radius: 50%;
+
+  border-radius: 999px;
+
+  background: var(--dt-red);
+
   display: inline-block;
+
   animation: pulse-red 2s infinite;
 }
 
-/* ================= RESPONSIVE LOGIC ================= */
+/* =========================================================
+   CARD
+========================================================= */
+.card-clean {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 @media (max-width: 992px) {
-  .main-grid, .bottom-layout-grid {
-    grid-template-columns: 1fr !important;
-    gap: 40px !important;
+  .main-grid,
+  .bottom-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
   }
 
   .hide-on-mobile {
-    display: none !important; /* Murni CSS untuk mencegah Hydration Mismatch */
+    display: none !important;
   }
 
   .section-title {
@@ -198,11 +342,15 @@ main, aside, section {
 
   .rank-number {
     font-size: 24px;
-    min-width: 35px;
+    min-width: 32px;
   }
 
   .btn-banyumas {
     font-size: 10px;
-    padding: 2px 6px;
+    padding: 4px 8px;
+  }
+
+  .container {
+    padding-inline: 16px;
   }
 }

@@ -45,7 +45,7 @@ export default function Header() {
   const categoryMenus = [
     { name: "Berita", slug: "berita" },
     { name: "Artikel", slug: "artikel" },
-    { name: "Liputan Dakwah", slug: "liputan-dakwah" },
+    { name: "program", slug: "program" },
     { name: "Unit KMI", slug: "unit-kmi" },
     { name: "Unit SMP", slug: "unit-smp" },
     { name: "Video", slug: "video" },
@@ -56,9 +56,6 @@ export default function Header() {
   const subMenus = [
     { name: "Profile", slug: "profile" },
     { name: "Struktur Pimpinan", slug: "pimpinan" },
-    { name: "Ranting", slug: "ranting" },
-    { name: "Data Masjid", slug: "masjid" },
-    { name: "Data AUM", slug: "aum" },
     { name: "Download", slug: "download" },
     { name: "Gallery", slug: "galeri" },
     { name: "Kontak", slug: "kontak" },

@@ -1,4 +1,3 @@
-// app/page.tsx
 import { 
   getKhutbahPosts, 
   getVideoPosts, 
@@ -26,7 +25,7 @@ export default async function Home({
 }: { 
   searchParams: Promise<any> 
 }) {
-  // 1. Ambil data secara paralel untuk mempercepat loading server
+  // 1. Ambil data secara paralel dari Sanity
   const [
     khutbahData, 
     videoData, 
@@ -37,10 +36,10 @@ export default async function Home({
     sParams
   ] = await Promise.all([
     getKhutbahPosts(),
-    getVideoPosts(),   // Data untuk VideoSection
+    getVideoPosts(),
     getNewsPosts(),
     getPopularPosts(),
-    getUnits(),        // Data untuk UnitPrograms
+    getUnits(),
     getAllPosts(),
     searchParams
   ]);
@@ -57,12 +56,10 @@ export default async function Home({
         {/* 2. MAIN GRID */}
         <div className="main-grid">
           <main className="main-content">
-            {/* Headline biasanya mengambil data dari News terbaru */}
             <Headline posts={newsData} />
           </main>
           
           <aside className="hide-on-mobile">
-            {/* PopularSidebar sekarang menerima data dinamis dari Sanity */}
             <PopularSidebar popularPosts={popularData} />
           </aside>
         </div>
@@ -72,20 +69,19 @@ export default async function Home({
           <RecommendationSection posts={allPosts} />
         </section>
 
-        {/* 4. PROGRAM UNGGULAN */}
-        <section style={{ marginTop: '50px' }}>
-          {/* Mengirimkan data unit pendidikan (KMI, SMP, dll) */}
+        {/* 4. PROGRAM UNGGULAN (SOPHISTICATED VERSION) */}
+        <section style={{ marginTop: '60px', marginBottom: '60px' }}>
+          {/* Komponen ini sekarang menggunakan desain Mission Control 2026 */}
           <UnitPrograms units={unitData} />
         </section>
 
-        {/* 5. KABAR UNIT (KMI & SMP) */}
+        {/* 5. KABAR UNIT */}
         <section style={{ marginTop: '50px' }}>
           <UnitNews />
         </section>
 
         {/* 6. KONTEN VIDEO */}
         <section style={{ marginTop: '50px', marginBottom: '20px' }}>
-          {/* FIX: Mengirimkan videoData untuk mencegah build error */}
           <VideoSection videos={videoData || []} />
         </section>
 
@@ -99,7 +95,6 @@ export default async function Home({
           </section>
 
           <aside className="sidebar-dakwah">
-            {/* Khutbah ditarik secara dinamis dari kategori 'khutbah' */}
             <KhutbahSidebar articles={khutbahData || []} />
             <InfoDakwah />
           </aside>

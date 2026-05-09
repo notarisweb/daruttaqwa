@@ -1,11 +1,12 @@
-import { 
-  getKhutbahPosts, 
-  getVideoPosts, 
+import {
+  getKhutbahPosts,
+  getVideoPosts,
   getNewsPosts,
   getPopularPosts,
   getUnits,
   getAllPosts
 } from "@/lib/sanity.query";
+
 import Headline from "@/components/Headline";
 import TopNews from "@/components/TopNews";
 import PopularSidebar from "@/components/PopularSidebar";
@@ -14,26 +15,35 @@ import LatestPosts from "@/components/LatestPosts";
 import KhutbahSidebar from "@/components/KhutbahSidebar";
 import InfoDakwah from "@/components/InfoDakwah";
 import UnitPrograms from "@/components/UnitPrograms";
-import UnitNews from "@/components/UnitNews"; 
+import UnitNews from "@/components/UnitNews";
 import VideoSection from "@/components/VideoSection";
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0; 
+// ======================================
+// FORCE DYNAMIC
+// ======================================
+export const dynamic = "force-dynamic";
 
-export default async function Home({ 
-  searchParams 
-}: { 
-  searchParams: Promise<any> 
+// ======================================
+// PAGE
+// ======================================
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: {
+    [key: string]: string | string[] | undefined;
+  };
 }) {
-  // 1. Ambil data secara paralel dari Sanity
+
+  // ======================================
+  // FETCH DATA PARALEL
+  // ======================================
   const [
-    khutbahData, 
-    videoData, 
-    newsData, 
-    popularData, 
-    unitData, 
+    khutbahData,
+    videoData,
+    newsData,
+    popularData,
+    unitData,
     allPosts,
-    sParams
   ] = await Promise.all([
     getKhutbahPosts(),
     getVideoPosts(),
@@ -41,66 +51,140 @@ export default async function Home({
     getPopularPosts(),
     getUnits(),
     getAllPosts(),
-    searchParams
   ]);
 
   return (
     <div className="home-wrapper">
+
       <div className="container">
-        
-        {/* 1. TOP NEWS */}
-        <section style={{ marginTop: '20px' }}>
-          <TopNews posts={newsData} />
+
+        {/* ================================= */}
+        {/* TOP NEWS */}
+        {/* ================================= */}
+        <section
+          style={{
+            marginTop: "20px",
+          }}
+        >
+          <TopNews posts={newsData || []} />
         </section>
 
-        {/* 2. MAIN GRID */}
+        {/* ================================= */}
+        {/* MAIN GRID */}
+        {/* ================================= */}
         <div className="main-grid">
+
+          {/* MAIN */}
           <main className="main-content">
-            <Headline posts={newsData} />
+            <Headline posts={newsData || []} />
           </main>
-          
+
+          {/* SIDEBAR */}
           <aside className="hide-on-mobile">
-            <PopularSidebar popularPosts={popularData} />
+            <PopularSidebar
+              popularPosts={popularData || []}
+            />
           </aside>
+
         </div>
 
-        {/* 3. REKOMENDASI SECTION */}
-        <section style={{ marginTop: '40px' }}>
-          <RecommendationSection posts={allPosts} />
+        {/* ================================= */}
+        {/* REKOMENDASI */}
+        {/* ================================= */}
+        <section
+          style={{
+            marginTop: "40px",
+          }}
+        >
+          <RecommendationSection
+            posts={allPosts || []}
+          />
         </section>
 
-        {/* 4. PROGRAM UNGGULAN (SOPHISTICATED VERSION) */}
-        <section style={{ marginTop: '60px', marginBottom: '60px' }}>
-          {/* Komponen ini sekarang menggunakan desain Mission Control 2026 */}
-          <UnitPrograms units={unitData} />
+        {/* ================================= */}
+        {/* UNIT PROGRAMS */}
+        {/* ================================= */}
+        <section
+          style={{
+            marginTop: "60px",
+            marginBottom: "60px",
+          }}
+        >
+          <UnitPrograms
+            units={unitData || []}
+          />
         </section>
 
-        {/* 5. KABAR UNIT */}
-        <section style={{ marginTop: '50px' }}>
+        {/* ================================= */}
+        {/* UNIT NEWS */}
+        {/* ================================= */}
+        <section
+          style={{
+            marginTop: "50px",
+          }}
+        >
           <UnitNews />
         </section>
 
-        {/* 6. KONTEN VIDEO */}
-        <section style={{ marginTop: '50px', marginBottom: '20px' }}>
-          <VideoSection videos={videoData || []} />
+        {/* ================================= */}
+        {/* VIDEO SECTION */}
+        {/* ================================= */}
+        <section
+          style={{
+            marginTop: "50px",
+            marginBottom: "20px",
+          }}
+        >
+          <VideoSection
+            videos={videoData || []}
+          />
         </section>
 
-        {/* 7. BOTTOM LAYOUT */}
-        <div className="bottom-layout-grid" style={{ marginTop: '50px' }}>
+        {/* ================================= */}
+        {/* BOTTOM GRID */}
+        {/* ================================= */}
+        <div
+          className="bottom-layout-grid"
+          style={{
+            marginTop: "50px",
+          }}
+        >
+
+          {/* LEFT */}
           <section className="main-content">
+
             <h2 className="section-title">
-              Postingan <span style={{ color: 'var(--dt-gold)' }}>Terbaru</span>
+              Postingan{" "}
+              <span
+                style={{
+                  color: "var(--dt-gold)",
+                }}
+              >
+                Terbaru
+              </span>
             </h2>
-            <LatestPosts searchParams={sParams} />
+
+            <LatestPosts
+              searchParams={searchParams}
+            />
+
           </section>
 
+          {/* RIGHT */}
           <aside className="sidebar-dakwah">
-            <KhutbahSidebar articles={khutbahData || []} />
+
+            <KhutbahSidebar
+              articles={khutbahData || []}
+            />
+
             <InfoDakwah />
+
           </aside>
+
         </div>
 
       </div>
+
     </div>
   );
 }

@@ -1,249 +1,462 @@
 // lib/sanity.query.ts
+
 import { client } from "./sanity.client";
 import { groq } from "next-sanity";
 
-/**
- * Konfigurasi revalidate agar data selalu fresh di web (Production)
- */
-const revalidateConfig = { next: { revalidate: 0 } };
+// ======================================
+// REVALIDATE CONFIG
+// ======================================
+const revalidateConfig = {
+  next: {
+    revalidate: 0,
+  },
+};
 
-/**
- * 1. Ambil Semua Postingan Terbaru
- */
+// ======================================
+// 1. GET ALL POSTS
+// ======================================
 export async function getAllPosts() {
+
   return client.fetch(
-    groq`*[_type == "post"] | order(publishedAt desc)[0...15] {
-      _id,
-      title,
-      "slug": slug.current,
-      "image": mainImage.asset->url,
-      youtubeUrl,
-      publishedAt,
-      "category": category->title,
-      "categorySlug": category->slug.current
-    }`,
+    groq`
+      *[_type == "post"]
+      | order(publishedAt desc)[0...15] {
+
+        _id,
+
+        title,
+
+        "slug": slug.current,
+
+        youtubeUrl,
+
+        publishedAt,
+
+        views,
+
+        "image": mainImage.asset->url,
+
+        "imageAlt": mainImage.alt,
+
+        "category": category->title,
+
+        "categorySlug": category->slug.current,
+
+        "authorName": author->name,
+
+        "authorImage": author->image.asset->url
+      }
+    `,
     {},
     revalidateConfig
   );
 }
 
-/**
- * 2. Ambil Berita Terbaru (Untuk Headline)
- * PERBAIKAN: Menambahkan fungsi getNewsPosts yang hilang untuk memperbaiki build error
- */
+// ======================================
+// 2. GET NEWS POSTS
+// ======================================
 export async function getNewsPosts() {
+
   return client.fetch(
-    groq`*[_type == "post" && category->slug.current == "berita"] | order(publishedAt desc)[0...6] {
-      _id,
-      title,
-      "slug": slug.current,
-      "image": mainImage.asset->url,
-      youtubeUrl,
-      publishedAt,
-      "category": "Berita"
-    }`,
+    groq`
+      *[
+        _type == "post" &&
+        category->slug.current == "berita"
+      ]
+      | order(publishedAt desc)[0...6] {
+
+        _id,
+
+        title,
+
+        "slug": slug.current,
+
+        youtubeUrl,
+
+        publishedAt,
+
+        views,
+
+        "image": mainImage.asset->url,
+
+        "category": category->title,
+
+        "categorySlug": category->slug.current
+      }
+    `,
     {},
     revalidateConfig
   );
 }
 
-/**
- * 3. Ambil Konten Video (Untuk VideoSection)
- */
+// ======================================
+// 3. GET VIDEO POSTS
+// ======================================
 export async function getVideoPosts() {
+
   return client.fetch(
-    groq`*[_type == "post" && defined(youtubeUrl)] | order(publishedAt desc)[0...6] {
-      _id,
-      title,
-      "slug": slug.current,
-      youtubeUrl,
-      "image": mainImage.asset->url,
-      "source": category->title,
-      "categorySlug": category->slug.current,
-      "time": publishedAt
-    }`,
+    groq`
+      *[
+        _type == "post" &&
+        defined(youtubeUrl)
+      ]
+      | order(publishedAt desc)[0...6] {
+
+        _id,
+
+        title,
+
+        "slug": slug.current,
+
+        youtubeUrl,
+
+        publishedAt,
+
+        views,
+
+        "image": mainImage.asset->url,
+
+        "category": category->title,
+
+        "categorySlug": category->slug.current
+      }
+    `,
     {},
     revalidateConfig
   );
 }
 
-/**
- * 4. Detail Postingan Lengkap
- */
-export async function getSinglePost(slug: string) {
+// ======================================
+// 4. GET SINGLE POST
+// ======================================
+export async function getSinglePost(
+  slug: string
+) {
+
   if (!slug) return null;
+
   return client.fetch(
-    groq`*[_type == "post" && slug.current == $slug][0] {
-      _id,
-      title,
-      "slug": slug.current,
-      youtubeUrl,
-      "image": mainImage.asset->url,
-      "imageAlt": mainImage.alt,
-      "imageCaption": mainImage.caption,
-      publishedAt,
-      "category": category->title,
-      "categorySlug": category->slug.current,
-      body[] {
-        ...,
-        _type == "image" => {
+    groq`
+      *[
+        _type == "post" &&
+        slug.current == $slug
+      ][0] {
+
+        _id,
+
+        title,
+
+        "slug": slug.current,
+
+        excerpt,
+
+        youtubeUrl,
+
+        publishedAt,
+
+        views,
+
+        "image": mainImage.asset->url,
+
+        "imageAlt": mainImage.alt,
+
+        "imageCaption": mainImage.caption,
+
+        "category": category->title,
+
+        "categorySlug": category->slug.current,
+
+        body[] {
           ...,
-          asset->
-        }
-      },
-      "authorName": author->name,
-      "authorImage": author->image.asset->url,
-      "attachmentUrl": attachment.asset->url,
-      "attachmentDescription": attachment.description,
-      views
-    }`,
+
+          _type == "image" => {
+            ...,
+            asset->
+          }
+        },
+
+        "authorName": author->name,
+
+        "authorImage": author->image.asset->url,
+
+        "attachmentUrl": attachment.asset->url,
+
+        "attachmentDescription": attachment.description
+      }
+    `,
     { slug },
     revalidateConfig
   );
 }
 
-/**
- * 5. Fungsi Dinamis Rubrik (Halaman Kategori)
- */
-export async function getPostsByCategory(categorySlug: string) {
+// ======================================
+// 5. GET POSTS BY CATEGORY
+// ======================================
+export async function getPostsByCategory(
+  categorySlug: string
+) {
+
   return client.fetch(
-    groq`*[_type == "post" && category->slug.current == $categorySlug] | order(publishedAt desc) {
-      _id,
-      title,
-      "slug": slug.current,
-      "image": mainImage.asset->url,
-      youtubeUrl,
-      publishedAt,
-      "categoryName": category->title,
-      "excerpt": array::join(string::split(pt::text(body), "")[0...150], "") + "..."
-    }`,
+    groq`
+      *[
+        _type == "post" &&
+        category->slug.current == $categorySlug
+      ]
+      | order(publishedAt desc) {
+
+        _id,
+
+        title,
+
+        "slug": slug.current,
+
+        youtubeUrl,
+
+        publishedAt,
+
+        views,
+
+        "image": mainImage.asset->url,
+
+        "category": category->title,
+
+        "categorySlug": category->slug.current,
+
+        "excerpt":
+          array::join(
+            string::split(
+              pt::text(body),
+              ""
+            )[0...150],
+            ""
+          ) + "..."
+      }
+    `,
     { categorySlug },
     revalidateConfig
   );
 }
 
-/**
- * 6. Ambil Postingan Artikel (Sidebar Artikel)
- */
+// ======================================
+// 6. GET ARTICLE POSTS
+// ======================================
 export async function getArticlePosts() {
+
   return client.fetch(
-    groq`*[_type == "post" && category->slug.current == "artikel"] | order(publishedAt desc)[0...5] {
-      _id,
-      title,
-      "slug": slug.current,
-      "image": mainImage.asset->url,
-      publishedAt,
-      "category": "Artikel"
-    }`,
+    groq`
+      *[
+        _type == "post" &&
+        category->slug.current == "artikel"
+      ]
+      | order(publishedAt desc)[0...5] {
+
+        _id,
+
+        title,
+
+        "slug": slug.current,
+
+        publishedAt,
+
+        views,
+
+        "image": mainImage.asset->url,
+
+        "category": category->title,
+
+        "categorySlug": category->slug.current
+      }
+    `,
     {},
     revalidateConfig
   );
 }
 
-/**
- * 7. Ambil Khutbah Terbaru (Sidebar Khutbah)
- */
+// ======================================
+// 7. GET KHUTBAH POSTS
+// ======================================
 export async function getKhutbahPosts() {
+
   return client.fetch(
-    groq`*[_type == "post" && category->slug.current == "khutbah"] | order(publishedAt desc)[0...5] {
-      _id,
-      title,
-      "slug": slug.current,
-      "image": mainImage.asset->url,
-      youtubeUrl,
-      publishedAt,
-      "category": "Khutbah"
-    }`,
+    groq`
+      *[
+        _type == "post" &&
+        category->slug.current == "khutbah"
+      ]
+      | order(publishedAt desc)[0...5] {
+
+        _id,
+
+        title,
+
+        "slug": slug.current,
+
+        youtubeUrl,
+
+        publishedAt,
+
+        views,
+
+        "image": mainImage.asset->url,
+
+        "category": category->title,
+
+        "categorySlug": category->slug.current
+      }
+    `,
     {},
     revalidateConfig
   );
 }
 
-/**
- * 8. Galeri Kegiatan (Dokumentasi)
- */
+// ======================================
+// 8. GET GALLERY
+// ======================================
 export async function getGallery() {
+
   return client.fetch(
-    groq`*[_type == "gallery"] | order(publishedAt desc) {
-      _id,
-      title,
-      "image": mainImage.asset->url,
-      description,
-      publishedAt
-    }`,
+    groq`
+      *[_type == "gallery"]
+      | order(publishedAt desc) {
+
+        _id,
+
+        title,
+
+        description,
+
+        publishedAt,
+
+        "image": mainImage.asset->url
+      }
+    `,
     {},
     revalidateConfig
   );
 }
 
-/**
- * 9. Unit Pendidikan (Profil Sekolah)
- */
+// ======================================
+// 9. GET UNITS
+// ======================================
 export async function getUnits() {
+
   return client.fetch(
-    groq`*[_type == "unit"] | order(name asc) {
-      _id,
-      name,
-      "slug": slug.current,
-      description,
-      "image": mainImage.asset->url,
-      features
-    }`,
+    groq`
+      *[_type == "unit"]
+      | order(name asc) {
+
+        _id,
+
+        name,
+
+        "slug": slug.current,
+
+        description,
+
+        features,
+
+        "image": mainImage.asset->url
+      }
+    `,
     {},
     revalidateConfig
   );
 }
 
-/**
- * 10. Pengaturan Website Global (Site Settings)
- */
+// ======================================
+// 10. GET SITE SETTINGS
+// ======================================
 export async function getSiteSettings() {
+
   return client.fetch(
-    groq`*[_type == "siteSettings"][0] {
-      title,
-      whatsapp,
-      address,
-      runningText,
-      socialMedia
-    }`,
+    groq`
+      *[_type == "siteSettings"][0] {
+
+        title,
+
+        whatsapp,
+
+        address,
+
+        runningText,
+
+        socialMedia
+      }
+    `,
     {},
     revalidateConfig
   );
 }
 
-/**
- * 11. Postingan Terpopuler (Berdasarkan Views)
- */
+// ======================================
+// 11. GET POPULAR POSTS
+// ======================================
 export async function getPopularPosts() {
+
   return client.fetch(
-    groq`*[_type == "post"] | order(views desc)[0...5] {
-      _id,
-      title,
-      "slug": slug.current,
-      "image": mainImage.asset->url,
-      youtubeUrl,
-      publishedAt,
-      views,
-      "category": category->title
-    }`,
+    groq`
+      *[_type == "post"]
+      | order(views desc)[0...5] {
+
+        _id,
+
+        title,
+
+        "slug": slug.current,
+
+        youtubeUrl,
+
+        publishedAt,
+
+        views,
+
+        "image": mainImage.asset->url,
+
+        "category": category->title,
+
+        "categorySlug": category->slug.current
+      }
+    `,
     {},
     revalidateConfig
   );
 }
 
-/**
- * 12. Postingan Terkait (Bawah Artikel)
- */
-export async function getRelatedPosts(categorySlug: string, currentSlug: string) {
+// ======================================
+// 12. GET RELATED POSTS
+// ======================================
+export async function getRelatedPosts(
+  category: string,
+  currentSlug: string
+) {
+
   return client.fetch(
-    groq`*[_type == "post" && category->slug.current == $categorySlug && slug.current != $currentSlug][0...3] {
-      _id,
-      title,
-      "slug": slug.current,
-      "image": mainImage.asset->url,
-      youtubeUrl
-    }`,
-    { categorySlug, currentSlug },
+    groq`
+      *[
+        _type == "post" &&
+        category->slug.current == $category &&
+        slug.current != $currentSlug
+      ]
+      | order(publishedAt desc)
+      [0...3] {
+
+        _id,
+
+        title,
+
+        "slug": slug.current,
+
+        youtubeUrl,
+
+        publishedAt,
+
+        "image": mainImage.asset->url
+      }
+    `,
+    {
+      category,
+      currentSlug,
+    },
     revalidateConfig
   );
 }

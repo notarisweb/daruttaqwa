@@ -3,71 +3,93 @@
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
 
+/**
+ * RegistrationCTA - Final Optimized Version
+ * Proyek: Darut Taqwa Banyumas
+ * Developer: Naufal Hawari Muttawakkil
+ */
 export default function RegistrationCTA() {
   return (
     <section 
       className="main-container my-10 animate-fade-up"
-      style={{ width: '100%', maxWidth: '1200px', margin: '2.5rem auto', padding: '0 1.25rem' }}
+      style={{ width: '100%', maxWidth: '1200px', margin: '3rem auto', padding: '0 1.25rem' }}
     >
-      {/* CONTAINER SLIM LANDSCAPE */}
+      {/* KOTAK RAMPING (SLIM LANDSCAPE) */}
       <div 
-        className="relative overflow-hidden"
         style={{ 
           backgroundColor: '#fdfbf0', 
-          borderRadius: '1.25rem', 
+          borderRadius: '1.5rem', 
           border: '1px solid #f9ebbe',
-          padding: '1.5rem 3rem', 
-          display: 'flex',
-          flexDirection: 'column'
+          padding: '1.5rem 2.5rem', 
+          boxShadow: '0 12px 30px rgba(0,0,0,0.03)',
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
-        <div 
-          className="flex flex-col md:flex-row items-center justify-between gap-6"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
-        >
+        {/* AKSEN CAHAYA (SOFT GLOW) */}
+        <div style={{ position: 'absolute', top: '-15%', right: '-5%', width: '220px', height: '220px', background: 'radial-gradient(circle, rgba(26, 156, 105, 0.06) 0%, transparent 75%)', pointerEvents: 'none' }}></div>
 
-          {/* AREA TEKS - Menggunakan flex-1 agar teks membentang maksimal */}
-          <div className="flex-1 text-center md:text-left pr-0 md:pr-4">
+        <div 
+          className="flex flex-col items-start justify-center" 
+          style={{ width: '100%', position: 'relative', zIndex: 2 }}
+        >
+          
+          {/* AREA TEKS */}
+          <div style={{ width: '100%' }}>
             <h3 
-              className="text-dt-blue leading-tight"
-              style={{ fontSize: '1.75rem', fontWeight: '900', color: '#1e2f65', marginBottom: '0.25rem' }}
+              style={{ 
+                fontSize: 'clamp(1.6rem, 3.2vw, 2.2rem)', 
+                fontWeight: '900', 
+                color: '#1e2f65', 
+                lineHeight: '1.1',
+                marginBottom: '0.6rem',
+                letterSpacing: '-1.2px'
+              }}
             >
-              {/* whiteSpace: 'nowrap' MENGUNCI kata "Masa Depan" agar selalu sejajar */}
-              Hadiah Terindah Untuk <span style={{ color: '#f9c80e', fontStyle: 'italic', whiteSpace: 'nowrap' }}>Masa Depan</span>
+              Hadiah Terindah Untuk <span style={{ color: '#f9c80e', fontStyle: 'italic' }}>Masa Depan</span>
             </h3>
 
             <p 
-              className="text-text-muted font-medium"
-              style={{ color: '#666', fontSize: '0.95rem', lineHeight: '1.5', maxWidth: '100%' }}
+              style={{ 
+                color: '#555', 
+                fontSize: 'clamp(0.95rem, 1.2vw, 1.1rem)', 
+                lineHeight: '1.5',
+                maxWidth: '750px',
+                fontWeight: '500'
+              }}
             >
               Dunia mungkin berubah, iman dan adab adalah pegangan selamanya. 
-              Titipkan permata hati Anda di <strong>Darut Taqwa Banyumas</strong>.
+              Titipkan permata hati Anda di <strong style={{ color: '#1a9c69' }}>Darut Taqwa Banyumas</strong>.
             </p>
           </div>
 
-          {/* TOMBOL DAFTAR - Ditambah flexShrink: 0 agar ukurannya tidak tergencet teks */}
-          <Link
-            href="/pendaftaran"
-            className="group flex items-center gap-2 transition-all hover:scale-105 shrink-0"
-            style={{ 
-              backgroundColor: '#121212', 
-              color: 'white', 
-              padding: '0.75rem 1.5rem', 
-              borderRadius: '0.75rem', 
-              fontWeight: '800',
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              whiteSpace: 'nowrap',
-              flexShrink: 0, // Kunci ukuran tombol
-              boxShadow: '0 6px 15px rgba(0,0,0,0.15)'
-            }}
-          >
-            <UserPlus size={18} color="white" />
-            <span style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.75rem' }}>
-              Daftar Sekarang
-            </span>
-          </Link>
+          {/* AREA TOMBOL - JEDA SUDAH SEMPURNA */}
+          <div style={{ marginTop: '1.8rem', flexShrink: 0 }}> 
+            <Link
+              href="/pendaftaran"
+              className="group transition-all hover:scale-105 active:scale-95"
+              style={{ 
+                backgroundColor: '#1a9c69', 
+                color: 'white', 
+                padding: '0.7rem 1.6rem', 
+                borderRadius: '0.8rem', 
+                fontWeight: '800',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                width: 'fit-content',
+                boxShadow: '0 8px 20px rgba(26, 156, 105, 0.2)',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <UserPlus size={18} color="white" strokeWidth={3} />
+              <span style={{ textTransform: 'uppercase', letterSpacing: '1.5px', fontSize: '0.75rem' }}>
+                Daftar Sekarang
+              </span>
+            </Link>
+          </div>
 
         </div>
       </div>
